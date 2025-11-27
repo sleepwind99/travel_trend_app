@@ -1,5 +1,6 @@
 "use client";
 
+import { motion, AnimatePresence } from "framer-motion";
 import { AddUserModalProps } from "@/types/components";
 
 export default function AddUserModal({
@@ -15,8 +16,24 @@ export default function AddUserModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 bg-black bg-opacity-50 z-100 flex items-center justify-center p-4"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ duration: 0.2 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col"
+          >
         {/* 모달 헤더 */}
         <div className="bg-linear-to-r from-green-600 to-green-500 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -79,15 +96,19 @@ export default function AddUserModal({
 
         {/* 모달 푸터 */}
         <div className="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-3 border-t border-gray-200">
-          <button
+          <motion.button
             onClick={onClose}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors"
           >
             취소
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             onClick={onAdd}
             disabled={loading}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className="px-6 py-2.5 bg-linear-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 disabled:from-gray-400 disabled:to-gray-300 text-white font-semibold rounded-lg transition-colors flex items-center disabled:cursor-not-allowed"
           >
             {loading ? (
@@ -106,9 +127,11 @@ export default function AddUserModal({
                 사용자 추가
               </>
             )}
-          </button>
+          </motion.button>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { motion, AnimatePresence } from "framer-motion";
 import { Transaction } from "@/types";
 import { UserInfoModalProps } from "@/types/components";
 
@@ -17,8 +18,24 @@ export default function UserInfoModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 bg-black bg-opacity-50 z-100 flex items-center justify-center p-4"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ duration: 0.2 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+          >
         {/* 모달 헤더 */}
         <div className="bg-linear-to-r from-blue-600 to-blue-500 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -95,7 +112,7 @@ export default function UserInfoModal({
                 </svg>
                 거래 내역 ({userData.transactions.length}개)
               </h4>
-              <button
+              <motion.button
                 onClick={() => {
                   const newTransaction: Transaction = {
                     date: new Date().toISOString().split('T')[0],
@@ -109,13 +126,15 @@ export default function UserInfoModal({
                     transactions: [newTransaction, ...userData.transactions]
                   });
                 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors flex items-center"
               >
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 거래 추가
-              </button>
+              </motion.button>
             </div>
 
             <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
@@ -210,26 +229,32 @@ export default function UserInfoModal({
 
         {/* 모달 푸터 */}
         <div className="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
-          <button
+          <motion.button
             onClick={onDelete}
             disabled={loading}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className="px-6 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors flex items-center disabled:cursor-not-allowed"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
             사용자 삭제
-          </button>
+          </motion.button>
           <div className="flex space-x-3">
-            <button
+            <motion.button
               onClick={onClose}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               className="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors"
             >
               취소
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               onClick={onSave}
               disabled={loading}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               className="px-6 py-2.5 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 disabled:from-gray-400 disabled:to-gray-300 text-white font-semibold rounded-lg transition-colors flex items-center disabled:cursor-not-allowed"
             >
               {loading ? (
@@ -248,10 +273,12 @@ export default function UserInfoModal({
                   저장
                 </>
               )}
-            </button>
+            </motion.button>
           </div>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

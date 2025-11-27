@@ -2,8 +2,10 @@
 
 import { memo } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RecommendationCardProps } from "@/types/components";
+import ShareButton from "./ShareButton";
 
 function RecommendationCard({ recommendation: rec, index }: RecommendationCardProps) {
   // 로딩 상태일 때 Skeleton UI 표시
@@ -36,11 +38,13 @@ function RecommendationCard({ recommendation: rec, index }: RecommendationCardPr
   }
 
   return (
-    <div
-      className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full animate-fade-in-up"
-      style={{
-        animationDelay: `${(index % 3) * 100}ms`,
-      }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
+      whileHover={{ y: -8, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300 flex flex-col h-full"
     >
       {/* Image - Next.js Image 최적화 */}
       <div className="relative h-48 sm:h-56 overflow-hidden shrink-0">
@@ -62,7 +66,7 @@ function RecommendationCard({ recommendation: rec, index }: RecommendationCardPr
         ) : (
           <div className="w-full h-full bg-linear-to-br from-gray-200 to-gray-300 animate-pulse"></div>
         )}
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex items-center gap-2">
           {rec.location ? (
             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/90 backdrop-blur-sm text-gray-900 shadow-sm">
               <svg className="w-3 h-3 mr-1 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -72,6 +76,13 @@ function RecommendationCard({ recommendation: rec, index }: RecommendationCardPr
             </span>
           ) : (
             <div className="h-6 w-24 bg-white/90 rounded-full animate-pulse"></div>
+          )}
+          {rec.title && rec.link && (
+            <ShareButton
+              title={rec.title}
+              description={rec.description}
+              url={rec.link}
+            />
           )}
         </div>
       </div>
@@ -177,22 +188,24 @@ function RecommendationCard({ recommendation: rec, index }: RecommendationCardPr
 
         {/* Link Button - 카드 하단에 고정 */}
         {rec.link ? (
-          <a
+          <motion.a
             href={rec.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-auto block w-full text-center bg-linear-to-r from-blue-600 to-blue-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-blue-700 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="mt-auto block w-full text-center bg-linear-to-r from-blue-600 to-blue-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-blue-700 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg"
           >
             자세히 보기
             <svg className="inline-block w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-          </a>
+          </motion.a>
         ) : (
           <div className="mt-auto w-full h-12 bg-gray-200 rounded-xl animate-pulse"></div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
