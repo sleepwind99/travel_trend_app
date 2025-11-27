@@ -347,6 +347,8 @@ export default function SearchSection({ initialUsers }: SearchSectionProps) {
   useEffect(() => {
     if (!loadMoreTriggerRef.current || !hasMore || loadingMore) return;
 
+    const currentElement = loadMoreTriggerRef.current;
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore && !loadingMore) {
@@ -359,12 +361,10 @@ export default function SearchSection({ initialUsers }: SearchSectionProps) {
       }
     );
 
-    observer.observe(loadMoreTriggerRef.current);
+    observer.observe(currentElement);
 
     return () => {
-      if (loadMoreTriggerRef.current) {
-        observer.unobserve(loadMoreTriggerRef.current);
-      }
+      observer.unobserve(currentElement);
     };
   }, [hasMore, loadingMore, loadMore]);
 
