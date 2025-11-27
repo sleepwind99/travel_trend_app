@@ -20,8 +20,7 @@ type PartialRecommendation = Partial<Recommendation> & {
 
 export default function Home() {
   const [destination, setDestination] = useState("");
-  const [gender, setGender] = useState("male");
-  const [age, setAge] = useState("20s");
+  const [userId, setUserId] = useState("user_001");
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [recommendations, setRecommendations] = useState<PartialRecommendation[]>([]);
@@ -29,7 +28,7 @@ export default function Home() {
   const [searchAvailable, setSearchAvailable] = useState<boolean>(true);
   const [searchContext, setSearchContext] = useState<string>("");
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [currentSearchParams, setCurrentSearchParams] = useState<{destination: string; gender: string; age: string} | null>(null);
+  const [currentSearchParams, setCurrentSearchParams] = useState<{destination: string; userId: string} | null>(null);
 
   const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
 
@@ -65,49 +64,11 @@ export default function Home() {
             setSearchAvailable(message.searchAvailable ?? true);
             setSearchContext(message.searchContext || "");
             setHasMore(message.hasMore ?? true);
-          } else if (message.type === 'field_chunk') {
-            // 문자 단위 점진적 업데이트 처리 (character-by-character streaming)
-            const { index, field, data } = message;
-            const globalIndex = startIndex + index;
-
-            setRecommendations(prev => {
-              const updated = [...prev];
-              if (updated[globalIndex]) {
-                // 기존 텍스트에 새로운 chunk 추가
-                const rec = updated[globalIndex];
-                const currentValue = (rec as Record<string, unknown>)[field] as string || '';
-                updated[globalIndex] = {
-                  ...updated[globalIndex],
-                  [field]: currentValue + data.chunk,
-                };
-              }
-              return updated;
-            });
-
-            console.log(`🔄 Added chunk to '${field}' for recommendation ${index + 1}: "${data.chunk}"`);
-          } else if (message.type === 'field') {
-            // 개별 필드 업데이트 처리 (field-by-field progressive loading)
-            const { index, field, data } = message;
-            const globalIndex = startIndex + index;
-
-            setRecommendations(prev => {
-              const updated = [...prev];
-              if (updated[globalIndex]) {
-                updated[globalIndex] = {
-                  ...updated[globalIndex],
-                  ...data,
-                  _loading: false,
-                };
-              }
-              return updated;
-            });
-
-            console.log(`🔄 Updated field '${field}' for recommendation ${index + 1}`);
           } else if (message.type === 'recommendation') {
+            // 완성된 추천을 한 번에 표시
             const rec = message.data;
             const globalIndex = startIndex + message.index;
 
-            // 즉시 recommendations 배열에 추가/업데이트
             setRecommendations(prev => {
               const updated = [...prev];
               if (updated[globalIndex]) {
@@ -120,6 +81,23 @@ export default function Home() {
             });
 
             console.log(`📦 Received recommendation ${message.index + 1}: ${rec.title}`);
+          } else if (message.type === 'image_update') {
+            // 이미지가 준비되면 업데이트
+            const { index, data } = message;
+            const globalIndex = startIndex + index;
+
+            setRecommendations(prev => {
+              const updated = [...prev];
+              if (updated[globalIndex]) {
+                updated[globalIndex] = {
+                  ...updated[globalIndex],
+                  imageUrl: data.imageUrl,
+                };
+              }
+              return updated;
+            });
+
+            console.log(`🖼️ Image updated for recommendation ${index + 1}`);
           } else if (message.type === 'complete') {
             console.log("✅ Stream complete");
           }
@@ -153,8 +131,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           destination,
-          gender,
-          age,
+          userId,
           count: 3, // 최초 3개만 요청
           previousRecommendations: [], // 최초 검색이므로 빈 배열
         }),
@@ -167,7 +144,7 @@ export default function Home() {
       // 스트림에서 데이터 받아서 즉시 표시
       await processStream(response, 0);
 
-      setCurrentSearchParams({ destination, gender, age });
+      setCurrentSearchParams({ destination, userId });
     } catch (err) {
       setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
       setRecommendations([]);
@@ -307,41 +284,31 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Gender and Age Selection */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="gender" className="block text-sm font-semibold text-gray-700 mb-2">
-                      성별
-                    </label>
+                {/* User Selection */}
+                <div>
+                  <label htmlFor="userId" className="block text-sm font-semibold text-gray-700 mb-2">
+                    사용자 선택
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
                     <select
-                      id="gender"
-                      value={gender}
-                      onChange={(e) => setGender(e.target.value)}
-                      className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 transition-all appearance-none bg-white cursor-pointer"
+                      id="userId"
+                      value={userId}
+                      onChange={(e) => setUserId(e.target.value)}
+                      className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 transition-all appearance-none bg-white cursor-pointer"
                     >
-                      <option value="male">남성</option>
-                      <option value="female">여성</option>
-                      <option value="other">기타</option>
+                      <option value="user_001">김민준 (남성, 20대) - 아웃도어 & 문화 활동</option>
+                      <option value="user_002">박서연 (여성, 30대) - 웰빙 & 라이프스타일</option>
+                      <option value="user_003">이준호 (남성, 40대) - 골프 & 비즈니스</option>
                     </select>
                   </div>
-
-                  <div>
-                    <label htmlFor="age" className="block text-sm font-semibold text-gray-700 mb-2">
-                      연령대
-                    </label>
-                    <select
-                      id="age"
-                      value={age}
-                      onChange={(e) => setAge(e.target.value)}
-                      className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 transition-all appearance-none bg-white cursor-pointer"
-                    >
-                      <option value="teens">10대</option>
-                      <option value="20s">20대</option>
-                      <option value="30s">30대</option>
-                      <option value="40s">40대</option>
-                      <option value="50s+">50대 이상</option>
-                    </select>
-                  </div>
+                  <p className="mt-2 text-xs text-gray-500">
+                    💡 각 사용자의 최근 한 달간 거래 내역을 기반으로 맞춤형 여행지를 추천합니다
+                  </p>
                 </div>
 
                 {/* Submit Button */}

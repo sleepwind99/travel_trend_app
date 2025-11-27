@@ -1,0 +1,371 @@
+{
+  "users": [
+    {
+      "id": "user_001",
+      "name": "김민준",
+      "gender": "male",
+      "age": "20s",
+      "transactions": [
+        {
+          "date": "2024-10-28",
+          "category": "카페",
+          "merchant": "블루보틀 커피",
+          "amount": 7500,
+          "description": "콜드브루"
+        },
+        {
+          "date": "2024-10-27",
+          "category": "서점",
+          "merchant": "교보문고",
+          "amount": 32000,
+          "description": "여행 에세이 2권"
+        },
+        {
+          "date": "2024-10-26",
+          "category": "스포츠",
+          "merchant": "클라이밍짐",
+          "amount": 15000,
+          "description": "1일 이용권"
+        },
+        {
+          "date": "2024-10-25",
+          "category": "식당",
+          "merchant": "스시 오마카세",
+          "amount": 85000,
+          "description": "저녁 식사"
+        },
+        {
+          "date": "2024-10-24",
+          "category": "카페",
+          "merchant": "감성 카페",
+          "amount": 12000,
+          "description": "브런치 세트"
+        },
+        {
+          "date": "2024-10-23",
+          "category": "패션",
+          "merchant": "유니클로",
+          "amount": 89000,
+          "description": "아웃도어 재킷"
+        },
+        {
+          "date": "2024-10-22",
+          "category": "전자제품",
+          "merchant": "애플스토어",
+          "amount": 289000,
+          "description": "에어팟 프로"
+        },
+        {
+          "date": "2024-10-20",
+          "category": "미술관",
+          "merchant": "국립현대미술관",
+          "amount": 4000,
+          "description": "입장권"
+        },
+        {
+          "date": "2024-10-18",
+          "category": "온라인쇼핑",
+          "merchant": "쿠팡",
+          "amount": 45000,
+          "description": "캠핑용품"
+        },
+        {
+          "date": "2024-10-15",
+          "category": "식당",
+          "merchant": "이탈리안 레스토랑",
+          "amount": 65000,
+          "description": "파스타 & 와인"
+        },
+        {
+          "date": "2024-10-14",
+          "category": "스포츠",
+          "merchant": "등산용품점",
+          "amount": 120000,
+          "description": "등산화"
+        },
+        {
+          "date": "2024-10-12",
+          "category": "공연",
+          "merchant": "인터파크",
+          "amount": 140000,
+          "description": "뮤지컬 티켓 2매"
+        },
+        {
+          "date": "2024-10-10",
+          "category": "서점",
+          "merchant": "알라딘 중고서점",
+          "amount": 28000,
+          "description": "건축/인테리어 서적"
+        },
+        {
+          "date": "2024-10-08",
+          "category": "카페",
+          "merchant": "테라로사",
+          "amount": 9000,
+          "description": "핸드드립 커피"
+        },
+        {
+          "date": "2024-10-05",
+          "category": "식당",
+          "merchant": "프렌치 비스트로",
+          "amount": 95000,
+          "description": "코스 요리"
+        },
+        {
+          "date": "2024-10-03",
+          "category": "베이커리",
+          "merchant": "성수동 베이커리",
+          "amount": 18000,
+          "description": "빵 & 디저트"
+        },
+        {
+          "date": "2024-10-01",
+          "category": "온라인쇼핑",
+          "merchant": "29CM",
+          "amount": 78000,
+          "description": "감성 소품"
+        }
+      ]
+    },
+    {
+      "id": "user_002",
+      "name": "박서연",
+      "gender": "female",
+      "age": "30s",
+      "transactions": [
+        {
+          "date": "2024-10-28",
+          "category": "요가",
+          "merchant": "요가 스튜디오",
+          "amount": 150000,
+          "description": "월 회원권"
+        },
+        {
+          "date": "2024-10-27",
+          "category": "뷰티",
+          "merchant": "올리브영",
+          "amount": 85000,
+          "description": "스킨케어 제품"
+        },
+        {
+          "date": "2024-10-26",
+          "category": "카페",
+          "merchant": "웨이브커피",
+          "amount": 6500,
+          "description": "아메리카노"
+        },
+        {
+          "date": "2024-10-25",
+          "category": "식당",
+          "merchant": "비건 레스토랑",
+          "amount": 42000,
+          "description": "샐러드 & 스무디"
+        },
+        {
+          "date": "2024-10-24",
+          "category": "서점",
+          "merchant": "예스24",
+          "amount": 35000,
+          "description": "자기계발서"
+        },
+        {
+          "date": "2024-10-22",
+          "category": "온라인쇼핑",
+          "merchant": "무신사",
+          "amount": 125000,
+          "description": "요가복 세트"
+        },
+        {
+          "date": "2024-10-20",
+          "category": "베이커리",
+          "merchant": "파리바게뜨",
+          "amount": 12000,
+          "description": "샌드위치"
+        },
+        {
+          "date": "2024-10-18",
+          "category": "전시회",
+          "merchant": "DDP",
+          "amount": 15000,
+          "description": "디자인 전시"
+        },
+        {
+          "date": "2024-10-15",
+          "category": "카페",
+          "merchant": "프릳츠 커피",
+          "amount": 8500,
+          "description": "라떼"
+        },
+        {
+          "date": "2024-10-14",
+          "category": "온라인쇼핑",
+          "merchant": "컬리",
+          "amount": 68000,
+          "description": "유기농 식품"
+        },
+        {
+          "date": "2024-10-12",
+          "category": "뷰티",
+          "merchant": "네일샵",
+          "amount": 45000,
+          "description": "젤 네일"
+        },
+        {
+          "date": "2024-10-10",
+          "category": "식당",
+          "merchant": "타이 레스토랑",
+          "amount": 38000,
+          "description": "팟타이"
+        },
+        {
+          "date": "2024-10-08",
+          "category": "서점",
+          "merchant": "영풍문고",
+          "amount": 29000,
+          "description": "인테리어 매거진"
+        },
+        {
+          "date": "2024-10-05",
+          "category": "패션",
+          "merchant": "자라",
+          "amount": 98000,
+          "description": "블라우스"
+        },
+        {
+          "date": "2024-10-03",
+          "category": "카페",
+          "merchant": "커피 빈",
+          "amount": 7000,
+          "description": "아이스 아메리카노"
+        },
+        {
+          "date": "2024-10-01",
+          "category": "온라인쇼핑",
+          "merchant": "와디즈",
+          "amount": 55000,
+          "description": "친환경 생활용품"
+        }
+      ]
+    },
+    {
+      "id": "user_003",
+      "name": "이준호",
+      "gender": "male",
+      "age": "40s",
+      "transactions": [
+        {
+          "date": "2024-10-28",
+          "category": "골프",
+          "merchant": "골프존",
+          "amount": 45000,
+          "description": "스크린골프"
+        },
+        {
+          "date": "2024-10-27",
+          "category": "식당",
+          "merchant": "고급 한정식",
+          "amount": 180000,
+          "description": "저녁 접대"
+        },
+        {
+          "date": "2024-10-26",
+          "category": "서점",
+          "merchant": "교보문고",
+          "amount": 48000,
+          "description": "경영 서적"
+        },
+        {
+          "date": "2024-10-25",
+          "category": "주유소",
+          "merchant": "GS칼텍스",
+          "amount": 95000,
+          "description": "휘발유"
+        },
+        {
+          "date": "2024-10-24",
+          "category": "카페",
+          "merchant": "스타벅스",
+          "amount": 18000,
+          "description": "커피 3잔"
+        },
+        {
+          "date": "2024-10-22",
+          "category": "백화점",
+          "merchant": "현대백화점",
+          "amount": 350000,
+          "description": "와이셔츠 3벌"
+        },
+        {
+          "date": "2024-10-20",
+          "category": "식당",
+          "merchant": "일식당",
+          "amount": 120000,
+          "description": "사시미 & 사케"
+        },
+        {
+          "date": "2024-10-18",
+          "category": "온라인쇼핑",
+          "merchant": "11번가",
+          "amount": 280000,
+          "description": "골프 의류"
+        },
+        {
+          "date": "2024-10-15",
+          "category": "전자제품",
+          "merchant": "하이마트",
+          "amount": 450000,
+          "description": "무선청소기"
+        },
+        {
+          "date": "2024-10-14",
+          "category": "골프",
+          "merchant": "골프연습장",
+          "amount": 30000,
+          "description": "타석 이용"
+        },
+        {
+          "date": "2024-10-12",
+          "category": "식당",
+          "merchant": "와인바",
+          "amount": 95000,
+          "description": "와인 2병"
+        },
+        {
+          "date": "2024-10-10",
+          "category": "주유소",
+          "merchant": "SK에너지",
+          "amount": 92000,
+          "description": "경유"
+        },
+        {
+          "date": "2024-10-08",
+          "category": "서점",
+          "merchant": "반디앤루니스",
+          "amount": 52000,
+          "description": "경제/재테크"
+        },
+        {
+          "date": "2024-10-05",
+          "category": "카페",
+          "merchant": "할리스",
+          "amount": 12000,
+          "description": "커피 2잔"
+        },
+        {
+          "date": "2024-10-03",
+          "category": "식당",
+          "merchant": "스테이크 하우스",
+          "amount": 165000,
+          "description": "저녁 식사"
+        },
+        {
+          "date": "2024-10-01",
+          "category": "백화점",
+          "merchant": "롯데백화점",
+          "amount": 280000,
+          "description": "가죽 벨트 & 지갑"
+        }
+      ]
+    }
+  ]
+}

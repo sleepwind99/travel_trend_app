@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import axios from "axios";
 import { parse as parsePartialJson } from "partial-json";
+import fs from "fs";
+import path from "path";
+import { generatePrompts } from "@/prompts/travelRecommendation";
 
 const anthropic = new Anthropic({
   apiKey: process.env.CLAUDE_API_KEY,
@@ -11,11 +14,112 @@ const anthropic = new Anthropic({
 const SEARCH_MODE = process.env.SEARCH_MODE || 'server';
 const SERPER_API_KEY = process.env.SERPER_API_KEY;
 
+// 사용자 데이터 타입 정의
+interface Transaction {
+  date: string;
+  category: string;
+  merchant: string;
+  amount: number;
+  description: string;
+}
+
+interface UserData {
+  id: string;
+  name: string;
+  gender: string;
+  age: string;
+  transactions: Transaction[];
+}
+
+interface UsersData {
+  users: UserData[];
+}
+
+// 사용자 데이터 로드
+function loadUserData(userId: string): UserData | null {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'users.json');
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    const data: UsersData = JSON.parse(fileContent);
+
+    const user = data.users.find(u => u.id === userId);
+    if (!user) {
+      console.error(`❌ User not found: ${userId}`);
+      return null;
+    }
+
+    console.log(`✅ Loaded user data: ${user.name} (${user.gender}, ${user.age})`);
+    return user;
+  } catch (error) {
+    console.error("❌ Failed to load user data:", error);
+    return null;
+  }
+}
+
+// 거래 내역 분석하여 관심사 추출
+function analyzeTransactions(transactions: Transaction[]): string {
+  // 카테고리별 지출 집계
+  const categorySpending: Record<string, number> = {};
+  const categoryCount: Record<string, number> = {};
+
+  transactions.forEach(t => {
+    categorySpending[t.category] = (categorySpending[t.category] || 0) + t.amount;
+    categoryCount[t.category] = (categoryCount[t.category] || 0) + 1;
+  });
+
+  // 지출액 기준 상위 카테고리 정렬
+  const topCategories = Object.entries(categorySpending)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5)
+    .map(([category, amount]) => ({
+      category,
+      amount,
+      count: categoryCount[category]
+    }));
+
+  // 분석 텍스트 생성
+  const analysisLines: string[] = [
+    "=== 사용자 소비 패턴 분석 ===",
+    "",
+    "주요 관심 분야 (지출액 기준):"
+  ];
+
+  topCategories.forEach((item, index) => {
+    analysisLines.push(
+      `${index + 1}. ${item.category}: ${item.count}회, ${item.amount.toLocaleString()}원`
+    );
+  });
+
+  // 구체적인 상점/장소 언급
+  analysisLines.push("");
+  analysisLines.push("자주 방문하는 장소:");
+  const merchantCounts: Record<string, number> = {};
+  transactions.forEach(t => {
+    merchantCounts[t.merchant] = (merchantCounts[t.merchant] || 0) + 1;
+  });
+
+  const topMerchants = Object.entries(merchantCounts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5)
+    .map(([merchant, count]) => `- ${merchant} (${count}회)`);
+
+  analysisLines.push(...topMerchants);
+
+  // 최근 구매 항목
+  analysisLines.push("");
+  analysisLines.push("최근 구매 항목:");
+  transactions.slice(0, 5).forEach(t => {
+    analysisLines.push(`- ${t.date}: ${t.description} (${t.merchant})`);
+  });
+
+  return analysisLines.join("\n");
+}
+
 // Serper API로 실시간 여행 트렌드 검색 (방법 1: 서버 검색)
 async function searchTravelTrendsSerper(
   destination: string,
-  gender: string,
-  age: string,
+  user: UserData,
+  interests: string,
   currentDate: string
 ): Promise<{ searchContext: string; searchAvailable: boolean }> {
   const searchStartTime = Date.now();
@@ -29,10 +133,17 @@ async function searchTravelTrendsSerper(
   }
 
   try {
+    // 사용자의 관심사를 반영한 검색 쿼리 생성
+    const topInterests = interests.split('\n')
+      .filter(line => line.match(/^\d+\./))
+      .slice(0, 3)
+      .map(line => line.split(':')[0].replace(/^\d+\.\s*/, '').trim())
+      .join(' ');
+
     // 최적화된 검색 쿼리 (2개)
     const searchQueries = [
-      `${destination} 여행 추천 2025 최신 핫플레이스 ${age}`,
-      `${destination} 인기 여행지 맛집 ${gender}`,
+      `${destination} 여행 추천 2025 최신 ${topInterests} ${user.age}`,
+      `${destination} 인기 여행지 ${user.gender} ${topInterests}`,
     ];
 
     console.log("🔍 Searching travel trends with Serper API...");
@@ -130,8 +241,11 @@ async function searchTravelTrendsSerper(
 // 여러 이미지 API에서 순차적으로 검색 (최적화: 빠른 API 우선)
 async function fetchImageFromMultipleSources(query: string): Promise<string> {
   // 1. Unsplash (가장 빠름 - API 키 불필요, 바로 URL 생성)
-  const unsplashUrl = `https://source.unsplash.com/1200x800/?${encodeURIComponent(query)}`;
-  console.log(`✓ Using Unsplash for: ${query}`);
+  // 캐싱 방지를 위해 랜덤 시그니처 추가
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 10000);
+  const unsplashUrl = `https://source.unsplash.com/1200x800/?${encodeURIComponent(query)}&sig=${timestamp}-${random}`;
+  console.log(`✓ Using Unsplash for: ${query} (cache-busting: ${timestamp}-${random})`);
   return unsplashUrl;
 
   // 아래 코드는 Unsplash가 실패할 경우를 대비한 폴백 (현재는 도달 불가)
@@ -146,16 +260,30 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { destination, gender, age, count = 3, skipSearch = false, searchContext: providedSearchContext, previousRecommendations = [] } = body;
+    const { destination, userId, count = 3, skipSearch = false, searchContext: providedSearchContext, previousRecommendations = [] } = body;
 
-    console.log(`📍 Request params: destination="${destination}", gender="${gender}", age="${age}", count=${count}`);
+    console.log(`📍 Request params: destination="${destination}", userId="${userId}", count=${count}`);
 
-    if (!destination || !gender || !age) {
+    if (!destination || !userId) {
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
       );
     }
+
+    // 사용자 데이터 로드
+    const userData = loadUserData(userId);
+    if (!userData) {
+      return NextResponse.json(
+        { message: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    // 거래 내역 분석
+    const transactionAnalysis = analyzeTransactions(userData.transactions);
+    console.log("💳 Transaction analysis completed");
+    console.log(transactionAnalysis);
 
     // count는 3, 6, 9... 최대 21까지
     const requestCount = Math.min(Math.max(3, count), 21);
@@ -183,7 +311,7 @@ export async function POST(request: Request) {
       // 방법 1: 서버에서 검색 후 Claude에게 전달
       console.log("🔧 SEARCH_MODE: server (서버 검색 → Claude)");
       console.log("Fetching real-time travel trends with Serper...");
-      const searchResult = await searchTravelTrendsSerper(destination, gender, age, currentDate);
+      const searchResult = await searchTravelTrendsSerper(destination, userData, transactionAnalysis, currentDate);
       searchContext = searchResult.searchContext;
       searchAvailable = searchResult.searchAvailable;
     } else {
@@ -193,79 +321,18 @@ export async function POST(request: Request) {
       searchAvailable = false; // Tool Use에서는 검색 결과를 프롬프트에 포함하지 않음
     }
 
-    const systemPrompt = `당신은 최신 여행 트렌드와 SNS 핫플레이스에 정통한 여행 전문가입니다.
-${searchAvailable
-  ? "실시간 웹 검색 결과를 바탕으로 정확하고 최신의 여행지를 추천해야 합니다."
-  : "당신의 학습된 지식을 바탕으로 인기있고 검증된 여행지를 추천해야 합니다. 실시간 검색 결과는 사용할 수 없지만, 일반적으로 인기있는 명소와 트렌디한 장소를 추천해주세요."}
-인스타그램, 여행 블로그, 틱톡에서 현재 인기있는 장소들을 포함하여 추천해야 합니다.
-구체적인 장소명, 실용적인 정보, 그리고 왜 지금 이 장소가 트렌디한지 설명해야 합니다.
-오늘 날짜(${currentDate})를 기준으로 실제로 존재하고 방문 가능한 장소만 추천해야 합니다.
-
-⚠️ 이미지 중요 사항:
-- imageSearchQuery: 장소명의 영어 번역 (예: "Eiffel Tower Paris", "Shibuya Sky Tokyo")
-- 서버가 자동으로 이미지를 검색하므로 정확한 영어 검색어만 제공하면 됩니다
-
-🚨 중요: 응답은 반드시 유효한 JSON 배열 형식으로만 제공해야 합니다. 다른 텍스트, 설명, 주석을 포함하지 마세요. JSON만 출력하세요.`;
-
-    const userPrompt = `오늘은 ${currentDate}이고, 현재 계절은 ${currentSeason}입니다.
-
-${searchAvailable
-  ? searchContext
-  : `⚠️ 주의: 실시간 웹 검색을 사용할 수 없습니다. 당신의 학습된 지식을 바탕으로 일반적으로 인기있고 검증된 여행지를 추천해주세요.
-가능한 한 구체적이고 실제로 존재하는 장소를 추천해주세요.`}
-
-${previousRecommendations.length > 0
-  ? `🚨 중요 - 중복 방지:
-이미 추천된 여행지 목록 (절대 다시 추천하지 마세요):
-${previousRecommendations.map((title: string, idx: number) => `${idx + 1}. ${title}`).join('\n')}
-
-위 ${previousRecommendations.length}개 장소와 완전히 다른, 새로운 장소만 추천해야 합니다.
-같은 건물, 같은 구역, 유사한 이름의 장소도 피해주세요.
-`
-  : ''}
-
-다음 정보를 바탕으로 구체적이고 트렌디한 여행지 ${requestCount}곳을 추천해 주세요:
-
-- 목적지: ${destination}
-- 성별: ${gender}
-- 연령대: ${age}
-
-🚨 매우 중요 - 각 추천은 반드시:
-1. 완전히 다른 장소여야 합니다 (같은 건물/구역/거리의 다른 가게 금지)
-2. 서로 다른 카테고리여야 합니다 (관광지, 카페, 레스토랑, 쇼핑, 체험 등을 골고루)
-3. 다양한 지역에 분산되어야 합니다
-
-다음 JSON 형식으로 정확히 ${requestCount}개의 추천을 제공해 주세요 (더 많거나 적게 제공하지 마세요):
-
-[
-  {
-    "title": "구체적인 장소 이름 (예: 시부야 스카이 전망대, 파리 생제르맹 카페거리)",
-    "location": "정확한 위치 (도시, 구체적 지역/구)",
-    "description": "해당 장소에 대한 간결한 설명 (2-3문장, 최대 150자). 반드시 다음을 포함: (1) 왜 지금 인기있는지 (2) SNS에서 어떤 점이 핫한지 (3) 왜 이 사용자에게 적합한지. 간결하고 핵심적인 내용만 작성.",
-    "activities": ["구체적 활동 1", "구체적 활동 2", "구체적 활동 3", "추가 활동..."],
-    "priceRange": "비용 항목과 금액만 간단히 (예: 입장료 15,000원 / 식사비 2만원 / 무료)",
-    "bestTime": "계절과 시간대만 간단히 (예: 가을, 오후 / 4-6월, 저녁 / 연중, 낮)",
-    "imageSearchQuery": "장소명의 영어 번역 (예: Eiffel Tower Paris, Shibuya Sky Tokyo)",
-    "link": "위 검색 결과에서 제공된 실제 URL을 사용하거나, 해당 장소의 공식 웹사이트/관광 정보 링크. 반드시 유효한 전체 URL 형식이어야 함 (예: https://example.com)"
-  }
-]
-
-필수 요구사항:
-1. **트렌드 반영**: ${requestCount}곳 중 최소 ${Math.floor(requestCount / 2)}곳은 최근 1-2년 사이 SNS에서 급부상한 핫플레이스여야 함
-2. **구체성**: "파리" ❌ → "몽마르트 언덕의 르 물랭 드 라 갈레트" ✅
-3. **랜드마크 + 핫플 믹스**:
-   - 2-3곳: 전통적 랜드마크 (필수 방문지)
-   - 3-4곳: SNS/블로그 핫플레이스 (인스타그래머블, 로컬 맛집, 숨은 명소)
-4. **활동 구체성**: "사진 찍기" ❌ → "루프탑에서 일몰 타임랩스 촬영, 시그니처 메뉴 '○○○' 맛보기" ✅
-5. **가격 정보**: 항목명과 금액만 간단히 (예: "입장료 15,000원", "식사비 2만원", "무료")
-6. **현재성**: ${currentDate} 기준으로 실제 운영중이고 방문 가능한 곳만 추천
-7. **타겟 맞춤**: 해당 연령대와 성별이 실제로 좋아할만한 스타일의 장소
-8. **이미지 검색어**: imageSearchQuery를 정확한 영어로 작성 (장소명 + 도시, 예: "Shibuya Sky Tokyo", "Eiffel Tower Paris")
-9. **링크 필수**: 각 추천 장소마다 반드시 위 검색 결과에 포함된 URL 중 하나를 선택하여 link 필드에 포함하세요. 검색 결과의 "URL: " 부분에 있는 실제 링크를 사용하세요. 링크가 없으면 https://www.google.com/search?q=장소명+도시 형식으로 생성하세요
-
-예시:
-- 좋은 추천: "홍대 '연남동 자이언트 팬케이크 하우스' - 인스타그램 140만 좋아요, 3층 높이 팬케이크 포토존"
-- 나쁜 추천: "홍대 카페거리 - 다양한 카페가 있음"`;
+    // 프롬프트 생성
+    const { systemPrompt, userPrompt } = generatePrompts({
+      destination,
+      userData,
+      transactionAnalysis,
+      currentDate,
+      currentSeason,
+      requestCount,
+      searchAvailable,
+      searchContext,
+      previousRecommendations
+    });
 
     // Claude AI로부터 응답 받기
     console.log("🤖 Starting Claude AI response generation...");
@@ -693,121 +760,7 @@ ${previousRecommendations.map((title: string, idx: number) => `${idx + 1}. ${tit
                         continue;
                       }
 
-                      // 이전 상태 가져오기
-                      const prevState = fieldStates.get(i) || {};
-                      let updated = false;
-
-                      // 3. Description - 문자 단위 스트리밍
-                      if (rec.description && rec.description !== prevState.description) {
-                        const prevDesc = prevState.description || '';
-
-                        // 새로운 텍스트가 추가된 경우
-                        if (rec.description.length > prevDesc.length &&
-                            rec.description.startsWith(prevDesc)) {
-                          const newChunk = rec.description.substring(prevDesc.length);
-
-                          controller.enqueue(
-                            encoder.encode(
-                              JSON.stringify({
-                                type: 'field_chunk',
-                                index: i,
-                                field: 'description',
-                                data: {
-                                  chunk: newChunk,
-                                  isComplete: false,
-                                },
-                              }) + '\n'
-                            )
-                          );
-
-                          prevState.description = rec.description;
-                          updated = true;
-                        }
-                      }
-
-                      // 4. PriceRange - 문자 단위 스트리밍
-                      if (rec.priceRange && rec.priceRange !== prevState.priceRange) {
-                        const prevPrice = prevState.priceRange || '';
-
-                        if (rec.priceRange.length > prevPrice.length &&
-                            rec.priceRange.startsWith(prevPrice)) {
-                          const newChunk = rec.priceRange.substring(prevPrice.length);
-
-                          controller.enqueue(
-                            encoder.encode(
-                              JSON.stringify({
-                                type: 'field_chunk',
-                                index: i,
-                                field: 'priceRange',
-                                data: {
-                                  chunk: newChunk,
-                                  isComplete: false,
-                                },
-                              }) + '\n'
-                            )
-                          );
-
-                          prevState.priceRange = rec.priceRange;
-                          updated = true;
-                        }
-                      }
-
-                      // 5. BestTime - 문자 단위 스트리밍
-                      if (rec.bestTime && rec.bestTime !== prevState.bestTime) {
-                        const prevTime = prevState.bestTime || '';
-
-                        if (rec.bestTime.length > prevTime.length &&
-                            rec.bestTime.startsWith(prevTime)) {
-                          const newChunk = rec.bestTime.substring(prevTime.length);
-
-                          controller.enqueue(
-                            encoder.encode(
-                              JSON.stringify({
-                                type: 'field_chunk',
-                                index: i,
-                                field: 'bestTime',
-                                data: {
-                                  chunk: newChunk,
-                                  isComplete: false,
-                                },
-                              }) + '\n'
-                            )
-                          );
-
-                          prevState.bestTime = rec.bestTime;
-                          updated = true;
-                        }
-                      }
-
-                      // 6. Link - 항상 Google 검색 링크로 생성 (장소명만 사용)
-                      if (rec.link && !prevState.link) {
-                        // 장소명으로만 Google 검색 링크 생성
-                        const searchQuery = encodeURIComponent(rec.title);
-                        const googleLink = `https://www.google.com/search?q=${searchQuery}`;
-
-                        controller.enqueue(
-                          encoder.encode(
-                            JSON.stringify({
-                              type: 'field',
-                              index: i,
-                              field: 'link',
-                              data: {
-                                link: googleLink,
-                              },
-                            }) + '\n'
-                          )
-                        );
-
-                        prevState.link = googleLink;
-                        updated = true;
-                      }
-
-                      // 상태 업데이트
-                      if (updated) {
-                        fieldStates.set(i, prevState);
-                      }
-
-                      // 모든 필드가 완성되었을 때 header, image, activities 전송
+                      // 모든 필드가 완성되었는지 확인
                       if (rec.title && rec.location && rec.description &&
                           rec.activities && rec.priceRange && rec.bestTime && rec.link &&
                           !processedRecommendations.has(i)) {
@@ -815,76 +768,42 @@ ${previousRecommendations.map((title: string, idx: number) => `${idx + 1}. ${tit
                         // 중복 체크
                         const isDuplicate = previousRecommendations.includes(rec.title);
                         if (!isDuplicate) {
-                          // 1. Header 전송 (title + location) - 가장 먼저
-                          if (!prevState.title) {
-                            controller.enqueue(
-                              encoder.encode(
-                                JSON.stringify({
-                                  type: 'field',
-                                  index: i,
-                                  field: 'header',
-                                  data: {
-                                    title: rec.title,
-                                    location: rec.location,
-                                  },
-                                }) + '\n'
-                              )
-                            );
-                            prevState.title = rec.title;
-                            prevState.location = rec.location;
-                            console.log(`✅ Recommendation ${i + 1} header: ${rec.title} (${rec.location})`);
+                          // Google 검색 링크 생성
+                          const searchQuery = encodeURIComponent(rec.title || '');
+                          const googleLink = `https://www.google.com/search?q=${searchQuery}`;
 
-                            // 2. Image - header 전송 직후 이미지 검색 시작
-                            if ((rec.imageSearchQuery || rec.title) && !prevState.imageStarted) {
-                              const searchQuery = rec.imageSearchQuery || rec.title || 'travel';
-                              prevState.imageSearchQuery = searchQuery;
-                              prevState.imageStarted = true;
+                          // 이미지 검색 쿼리 준비
+                          const imageSearchQuery = rec.imageSearchQuery || rec.title || 'travel';
 
-                              // 비동기 이미지 검색
-                              fetchImageFromMultipleSources(searchQuery).then((imageUrl) => {
-                                controller.enqueue(
-                                  encoder.encode(
-                                    JSON.stringify({
-                                      type: 'field',
-                                      index: i,
-                                      field: 'image',
-                                      data: {
-                                        imageUrl,
-                                      },
-                                    }) + '\n'
-                                  )
-                                );
-                                console.log(`🖼️  Streamed image for recommendation ${i + 1}`);
-                              }).catch((err) => {
-                                console.error(`Failed to fetch image for recommendation ${i + 1}:`, err);
-                              });
-                            }
-                          }
+                          // 이미지 URL 가져오기 (Unsplash는 즉시 반환)
+                          const imageUrl = await fetchImageFromMultipleSources(imageSearchQuery);
+                          console.log(`🖼️  Image URL generated for recommendation ${i + 1}: ${imageUrl}`);
 
-                          // 3. Activities 전송 (완전한 데이터, 마지막)
-                          if (!prevState.activities) {
-                            controller.enqueue(
-                              encoder.encode(
-                                JSON.stringify({
-                                  type: 'field',
-                                  index: i,
-                                  field: 'activities',
-                                  data: {
-                                    activities: rec.activities,
-                                  },
-                                }) + '\n'
-                              )
-                            );
-                            prevState.activities = JSON.stringify(rec.activities);
-                            console.log(`✅ Recommendation ${i + 1} activities sent`);
-                          }
+                          // 완성된 추천을 이미지와 함께 전송
+                          controller.enqueue(
+                            encoder.encode(
+                              JSON.stringify({
+                                type: 'recommendation',
+                                index: i,
+                                data: {
+                                  title: rec.title,
+                                  location: rec.location,
+                                  description: rec.description,
+                                  activities: rec.activities,
+                                  priceRange: rec.priceRange,
+                                  bestTime: rec.bestTime,
+                                  link: googleLink,
+                                  imageUrl: imageUrl,
+                                },
+                              }) + '\n'
+                            )
+                          );
 
-                          fieldStates.set(i, prevState);
+                          console.log(`✅ Recommendation ${i + 1} completed: ${rec.title}`);
                         }
 
                         processedRecommendations.add(i);
                         recommendationIndex++;
-                        console.log(`📦 Recommendation ${i + 1} completed: ${rec.title}`);
                       }
                     }
                   }
