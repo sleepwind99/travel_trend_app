@@ -13,7 +13,7 @@ function RecommendationCard({ recommendation: rec, index }: RecommendationCardPr
       }}
     >
       {/* Image - Next.js Image 최적화 */}
-      <div className="relative h-48 sm:h-56 overflow-hidden flex-shrink-0">
+      <div className="relative h-48 sm:h-56 overflow-hidden shrink-0">
         {rec.imageUrl ? (
           <>
             <Image
@@ -27,10 +27,10 @@ function RecommendationCard({ recommendation: rec, index }: RecommendationCardPr
               placeholder="blur"
               blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwABmQ/9k="
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+            <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
           </>
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse"></div>
+          <div className="w-full h-full bg-linear-to-br from-gray-200 to-gray-300 animate-pulse"></div>
         )}
         <div className="absolute top-3 right-3">
           {rec.location ? (
@@ -47,7 +47,7 @@ function RecommendationCard({ recommendation: rec, index }: RecommendationCardPr
       </div>
 
       {/* Content */}
-      <div className="p-6 flex flex-col flex-grow">
+      <div className="p-6 flex flex-col grow">
         {/* Title */}
         {rec.title ? (
           <h4 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
@@ -151,7 +151,7 @@ function RecommendationCard({ recommendation: rec, index }: RecommendationCardPr
             href={rec.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-auto block w-full text-center bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-blue-700 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            className="mt-auto block w-full text-center bg-linear-to-r from-blue-600 to-blue-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-blue-700 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
           >
             자세히 보기
             <svg className="inline-block w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
