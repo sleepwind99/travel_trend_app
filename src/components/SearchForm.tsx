@@ -54,7 +54,7 @@ function SearchForm({
                   type="button"
                   onClick={onLoadUserData}
                   disabled={modalLoading}
-                  className="flex-shrink-0 w-12 h-[56px] bg-gradient-to-br from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 disabled:from-gray-400 disabled:to-gray-300 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center group disabled:cursor-not-allowed"
+                  className="shrink-0 w-12 h-14 bg-linear-to-br from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 disabled:from-gray-400 disabled:to-gray-300 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center group disabled:cursor-not-allowed"
                   title="사용자 정보 조회/수정"
                 >
                   {modalLoading ? (
@@ -94,7 +94,7 @@ function SearchForm({
                 <button
                   type="button"
                   onClick={onOpenAddUserModal}
-                  className="flex-shrink-0 w-12 h-[56px] bg-gradient-to-br from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center group"
+                  className="shrink-0 w-12 h-14 bg-linear-to-br from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center group"
                   title="새 사용자 추가"
                 >
                   <svg className="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,7 +111,7 @@ function SearchForm({
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-600 disabled:from-gray-400 disabled:to-gray-300 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none disabled:cursor-not-allowed"
+              className="w-full bg-linear-to-r from-blue-600 to-blue-500 text-white font-bold py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-600 disabled:from-gray-400 disabled:to-gray-300 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="flex items-center justify-center">

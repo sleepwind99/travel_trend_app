@@ -12,7 +12,7 @@ import RecommendationsGrid from "./RecommendationsGrid";
 const UserInfoModal = dynamic(() => import("./UserInfoModal"), {
   ssr: false, // 클라이언트에서만 필요
   loading: () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-100 flex items-center justify-center">
       <div className="bg-white rounded-2xl p-8">
         <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
       </div>
@@ -23,7 +23,7 @@ const UserInfoModal = dynamic(() => import("./UserInfoModal"), {
 const AddUserModal = dynamic(() => import("./AddUserModal"), {
   ssr: false,
   loading: () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-100 flex items-center justify-center">
       <div className="bg-white rounded-2xl p-8">
         <div className="animate-spin h-8 w-8 border-4 border-green-600 border-t-transparent rounded-full mx-auto"></div>
       </div>
@@ -399,7 +399,7 @@ export default function SearchSection({ initialUsers }: SearchSectionProps) {
         <div className="max-w-3xl mx-auto mb-8">
           <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
             <div className="flex">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
