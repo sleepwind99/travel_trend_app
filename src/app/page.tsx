@@ -741,7 +741,7 @@ export default function Home() {
       {/* 사용자 정보 모달 */}
       {isModalOpen && userData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             {/* 모달 헤더 */}
             <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -772,20 +772,20 @@ export default function Home() {
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">이름</label>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">이름</label>
                     <input
                       type="text"
                       value={userData.name}
                       onChange={(e) => setUserData({ ...userData, name: e.target.value })}
-                      className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 font-medium"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">성별</label>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">성별</label>
                     <select
                       value={userData.gender}
                       onChange={(e) => setUserData({ ...userData, gender: e.target.value })}
-                      className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 font-medium"
                     >
                       <option value="male">남성</option>
                       <option value="female">여성</option>
@@ -793,11 +793,11 @@ export default function Home() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">연령대</label>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">연령대</label>
                     <select
                       value={userData.age}
                       onChange={(e) => setUserData({ ...userData, age: e.target.value })}
-                      className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 font-medium"
                     >
                       <option value="10s">10대</option>
                       <option value="20s">20대</option>
@@ -843,10 +843,10 @@ export default function Home() {
 
                 <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
                   {userData.transactions.map((transaction, index) => (
-                    <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div key={index} className="bg-white rounded-lg p-4 border-2 border-gray-300">
                       <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                         <div>
-                          <label className="block text-xs font-semibold text-gray-600 mb-1">날짜</label>
+                          <label className="block text-xs font-bold text-gray-900 mb-1">날짜</label>
                           <input
                             type="date"
                             value={transaction.date}
@@ -855,11 +855,11 @@ export default function Home() {
                               newTransactions[index].date = e.target.value;
                               setUserData({ ...userData, transactions: newTransactions });
                             }}
-                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-2 py-1.5 text-sm border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-gray-600 mb-1">카테고리</label>
+                          <label className="block text-xs font-bold text-gray-900 mb-1">카테고리</label>
                           <input
                             type="text"
                             value={transaction.category}
@@ -868,11 +868,11 @@ export default function Home() {
                               newTransactions[index].category = e.target.value;
                               setUserData({ ...userData, transactions: newTransactions });
                             }}
-                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-2 py-1.5 text-sm border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-gray-600 mb-1">상점</label>
+                          <label className="block text-xs font-bold text-gray-900 mb-1">상점</label>
                           <input
                             type="text"
                             value={transaction.merchant}
@@ -881,11 +881,11 @@ export default function Home() {
                               newTransactions[index].merchant = e.target.value;
                               setUserData({ ...userData, transactions: newTransactions });
                             }}
-                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-2 py-1.5 text-sm border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-gray-600 mb-1">금액</label>
+                          <label className="block text-xs font-bold text-gray-900 mb-1">금액</label>
                           <input
                             type="number"
                             value={transaction.amount}
@@ -894,11 +894,11 @@ export default function Home() {
                               newTransactions[index].amount = parseInt(e.target.value) || 0;
                               setUserData({ ...userData, transactions: newTransactions });
                             }}
-                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-2 py-1.5 text-sm border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-gray-600 mb-1">설명</label>
+                          <label className="block text-xs font-bold text-gray-900 mb-1">설명</label>
                           <div className="flex gap-1">
                             <input
                               type="text"
@@ -908,7 +908,7 @@ export default function Home() {
                                 newTransactions[index].description = e.target.value;
                                 setUserData({ ...userData, transactions: newTransactions });
                               }}
-                              className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                              className="flex-1 px-2 py-1.5 text-sm border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"
                             />
                             <button
                               onClick={() => {
