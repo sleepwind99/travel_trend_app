@@ -373,10 +373,10 @@ export default function SearchSection({ initialUsers }: SearchSectionProps) {
     <>
       {/* Hero Section */}
       <div className="text-center mb-12">
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
           당신만을 위한<br className="sm:hidden" /> 여행지를 찾아드려요
         </h2>
-        <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+        <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
           AI가 여러분의 취향과 특성에 맞는 완벽한 여행지를 추천해드립니다
         </p>
       </div>

@@ -32,10 +32,10 @@ export default function AddUserModal({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col"
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col transition-colors"
           >
         {/* 모달 헤더 */}
-        <div className="bg-linear-to-r from-green-600 to-green-500 px-6 py-4 flex items-center justify-between">
+        <div className="bg-linear-to-r from-green-600 to-green-500 dark:from-green-700 dark:to-green-600 px-6 py-4 flex items-center justify-between transition-colors">
           <div className="flex items-center space-x-3">
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -44,7 +44,7 @@ export default function AddUserModal({
           </div>
           <button
             onClick={onClose}
-            className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
+            className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors cursor-pointer"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -56,21 +56,21 @@ export default function AddUserModal({
         <div className="p-6">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">이름 *</label>
+              <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">이름 *</label>
               <input
                 type="text"
                 value={newUser.name}
                 onChange={(e) => onUpdateNewUser({ ...newUser, name: e.target.value })}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 font-medium"
+                className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 font-medium transition-colors"
                 placeholder="사용자 이름 입력"
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">성별</label>
+              <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">성별</label>
               <select
                 value={newUser.gender}
                 onChange={(e) => onUpdateNewUser({ ...newUser, gender: e.target.value })}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 font-medium"
+                className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 font-medium transition-colors"
               >
                 <option value="male">남성</option>
                 <option value="female">여성</option>
@@ -78,11 +78,11 @@ export default function AddUserModal({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">연령대</label>
+              <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">연령대</label>
               <select
                 value={newUser.age}
                 onChange={(e) => onUpdateNewUser({ ...newUser, age: e.target.value })}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 font-medium"
+                className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 font-medium transition-colors"
               >
                 <option value="10s">10대</option>
                 <option value="20s">20대</option>
@@ -100,7 +100,7 @@ export default function AddUserModal({
             onClick={onClose}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors"
+            className="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors cursor-pointer"
           >
             취소
           </motion.button>
@@ -109,7 +109,7 @@ export default function AddUserModal({
             disabled={loading}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-6 py-2.5 bg-linear-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 disabled:from-gray-400 disabled:to-gray-300 text-white font-semibold rounded-lg transition-colors flex items-center disabled:cursor-not-allowed"
+            className="px-6 py-2.5 bg-linear-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 disabled:from-gray-400 disabled:to-gray-300 text-white font-semibold rounded-lg transition-colors flex items-center disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? (
               <>

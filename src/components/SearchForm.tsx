@@ -59,12 +59,12 @@ function SearchForm({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <form onSubmit={handleFormSubmit} className="bg-white rounded-2xl shadow-xl overflow-hidden">
+      <form onSubmit={handleFormSubmit} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden transition-colors border-2 border-gray-100 dark:border-gray-700">
         <div className="p-6 sm:p-8">
           <div className="space-y-6">
             {/* Destination Input */}
             <div>
-              <label htmlFor="destination" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="destination" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
                 어디로 가고 싶으세요?
               </label>
               <div className="relative">
@@ -83,10 +83,10 @@ function SearchForm({
                     setValue("destination", e.target.value);
                     trigger("destination");
                   }}
-                  className={`w-full pl-12 pr-4 py-4 border-2 rounded-xl focus:ring-2 text-gray-900 placeholder-gray-400 transition-all ${
+                  className={`w-full pl-12 pr-4 py-4 border-2 rounded-xl focus:ring-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-900 transition-all ${
                     errors.destination
                       ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-200 focus:ring-blue-500 focus:border-transparent"
+                      : "border-gray-200 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent"
                   }`}
                   placeholder="예: 파리, 일본, 뉴욕"
                 />
@@ -130,7 +130,7 @@ function SearchForm({
 
             {/* User Selection */}
             <div>
-              <label htmlFor="userId" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="userId" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
                 사용자 선택
               </label>
               <div className="flex gap-2">
@@ -141,7 +141,7 @@ function SearchForm({
                   disabled={modalLoading}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="shrink-0 w-12 h-14 bg-linear-to-br from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 disabled:from-gray-400 disabled:to-gray-300 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center group disabled:cursor-not-allowed"
+                  className="shrink-0 w-12 h-14 bg-linear-to-br from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 disabled:from-gray-400 disabled:to-gray-300 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center group disabled:cursor-not-allowed cursor-pointer"
                   title="사용자 정보 조회/수정"
                 >
                   {modalLoading ? (
@@ -171,10 +171,10 @@ function SearchForm({
                       setUserId(e.target.value);
                       setValue("userId", e.target.value);
                     }}
-                    className={`w-full pl-12 pr-4 py-4 border-2 rounded-xl focus:ring-2 text-gray-900 transition-all appearance-none bg-white cursor-pointer ${
+                    className={`w-full pl-12 pr-4 py-4 border-2 rounded-xl focus:ring-2 text-gray-900 dark:text-white transition-all appearance-none bg-white dark:bg-gray-900 cursor-pointer ${
                       errors.userId
                         ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-200 focus:ring-blue-500 focus:border-transparent"
+                        : "border-gray-200 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent"
                     }`}
                   >
                     {users.map(user => (
@@ -191,7 +191,7 @@ function SearchForm({
                   onClick={onOpenAddUserModal}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="shrink-0 w-12 h-14 bg-linear-to-br from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center group"
+                  className="shrink-0 w-12 h-14 bg-linear-to-br from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center group cursor-pointer"
                   title="새 사용자 추가"
                 >
                   <svg className="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,7 +199,7 @@ function SearchForm({
                   </svg>
                 </motion.button>
               </div>
-              <p className="mt-2 text-xs text-gray-500">
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                 💡 각 사용자의 최근 한 달간 거래 내역을 기반으로 맞춤형 여행지를 추천합니다
               </p>
             </div>
@@ -210,7 +210,7 @@ function SearchForm({
               disabled={loading}
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full bg-linear-to-r from-blue-600 to-blue-500 text-white font-bold py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-600 disabled:from-gray-400 disabled:to-gray-300 transition-all duration-200 shadow-lg hover:shadow-xl disabled:cursor-not-allowed"
+              className="w-full bg-linear-to-r from-blue-600 to-blue-500 text-white font-bold py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-600 disabled:from-gray-400 disabled:to-gray-300 transition-all duration-200 shadow-lg hover:shadow-xl disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? (
                 <span className="flex items-center justify-center">

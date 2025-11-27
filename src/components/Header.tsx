@@ -1,7 +1,10 @@
-// 서버 컴포넌트 (SSR)
+"use client";
+
+import DarkModeToggle from "./DarkModeToggle";
+
 export default function Header() {
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -10,8 +13,9 @@ export default function Header() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">AI 여행 플래너</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">AI 여행 플래너</h1>
           </div>
+          <DarkModeToggle />
         </div>
       </div>
     </header>

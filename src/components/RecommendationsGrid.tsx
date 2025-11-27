@@ -17,8 +17,8 @@ export default function RecommendationsGrid({
   return (
     <div className="max-w-6xl mx-auto">
       <div className="text-center mb-8">
-        <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">추천 여행지</h3>
-        <p className="text-gray-600">AI가 선정한 당신을 위한 특별한 장소들</p>
+        <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">추천 여행지</h3>
+        <p className="text-gray-600 dark:text-gray-300">AI가 선정한 당신을 위한 특별한 장소들</p>
 
         {/* Search Status Alert */}
         {!searchAvailable && (
