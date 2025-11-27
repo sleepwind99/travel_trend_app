@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
+import { toast } from "sonner";
 import { PartialRecommendation, UserData, NewUser } from "@/types";
 import { SearchSectionProps } from "@/types/components";
 import SearchForm from "./SearchForm";
@@ -156,7 +157,7 @@ export default function SearchSection({ initialUsers }: SearchSectionProps) {
       setUserData(data);
       setIsModalOpen(true);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
+      toast.error(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
     } finally {
       setModalLoading(false);
     }
@@ -180,11 +181,11 @@ export default function SearchSection({ initialUsers }: SearchSectionProps) {
         throw new Error("사용자 정보 저장에 실패했습니다.");
       }
 
-      alert("사용자 정보가 성공적으로 저장되었습니다!");
+      toast.success("사용자 정보가 성공적으로 저장되었습니다!");
       setIsModalOpen(false);
       loadUsersList();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
+      toast.error(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
     } finally {
       setModalLoading(false);
     }
@@ -193,7 +194,7 @@ export default function SearchSection({ initialUsers }: SearchSectionProps) {
   // 사용자 추가 함수
   const addNewUser = useCallback(async () => {
     if (!newUser.name.trim()) {
-      alert("이름을 입력해주세요.");
+      toast.error("이름을 입력해주세요.");
       return;
     }
 
@@ -215,13 +216,13 @@ export default function SearchSection({ initialUsers }: SearchSectionProps) {
       }
 
       const result = await response.json();
-      alert("새 사용자가 성공적으로 추가되었습니다!");
+      toast.success("새 사용자가 성공적으로 추가되었습니다!");
       setIsAddUserModalOpen(false);
       setNewUser({ name: "", gender: "male", age: "20s" });
       loadUsersList();
       setUserId(result.user.id);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
+      toast.error(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
     } finally {
       setModalLoading(false);
     }
@@ -243,7 +244,7 @@ export default function SearchSection({ initialUsers }: SearchSectionProps) {
         throw new Error("사용자 삭제에 실패했습니다.");
       }
 
-      alert("사용자가 성공적으로 삭제되었습니다!");
+      toast.success("사용자가 성공적으로 삭제되었습니다!");
       setIsModalOpen(false);
       loadUsersList();
 
@@ -252,7 +253,7 @@ export default function SearchSection({ initialUsers }: SearchSectionProps) {
         setUserId(remainingUsers[0].id);
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
+      toast.error(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
     } finally {
       setModalLoading(false);
     }

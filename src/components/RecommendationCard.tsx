@@ -2,9 +2,39 @@
 
 import { memo } from "react";
 import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
 import { RecommendationCardProps } from "@/types/components";
 
 function RecommendationCard({ recommendation: rec, index }: RecommendationCardProps) {
+  // 로딩 상태일 때 Skeleton UI 표시
+  if (rec._loading) {
+    return (
+      <div
+        className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col h-full animate-fade-in-up"
+        style={{
+          animationDelay: `${(index % 3) * 100}ms`,
+        }}
+      >
+        <Skeleton className="h-48 sm:h-56 w-full" />
+        <div className="p-6 space-y-4">
+          <Skeleton className="h-7 w-3/4" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-2/3" />
+          <div className="space-y-2 pt-4">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+          <div className="flex justify-between items-center pt-4">
+            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-5 w-24" />
+          </div>
+          <Skeleton className="h-12 w-full rounded-xl" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full animate-fade-in-up"
