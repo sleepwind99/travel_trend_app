@@ -48,7 +48,6 @@ function loadUserData(userId: string): UserData | null {
       return null;
     }
 
-    console.log(`✅ Loaded user data: ${user.name} (${user.gender}, ${user.age})`);
     return user;
   } catch (error) {
     console.error("❌ Failed to load user data:", error);
@@ -283,15 +282,10 @@ async function fetchImageFromMultipleSources(query: string): Promise<string> {
 
 export async function POST(request: Request) {
   const requestStartTime = Date.now();
-  console.log("\n" + "=".repeat(80));
-  console.log("🚀 NEW RECOMMENDATION REQUEST STARTED");
-  console.log("=".repeat(80));
 
   try {
     const body = await request.json();
     const { destination, userId, count = 3, skipSearch = false, searchContext: providedSearchContext, previousRecommendations = [] } = body;
-
-    console.log(`📍 Request params: destination="${destination}", userId="${userId}", count=${count}`);
 
     if (!destination || !userId) {
       return NextResponse.json(
@@ -311,8 +305,6 @@ export async function POST(request: Request) {
 
     // 거래 내역 분석
     const transactionAnalysis = analyzeTransactions(userData.transactions);
-    console.log("💳 Transaction analysis completed");
-    console.log(transactionAnalysis);
 
     // count는 3, 6, 9... 최대 21까지
     const requestCount = Math.min(Math.max(3, count), 21);
@@ -735,19 +727,6 @@ export async function POST(request: Request) {
             let textBuffer = '';
 
             // 각 필드의 마지막 전송 상태 추적 (인덱스별)
-            interface FieldState {
-              title?: string;
-              location?: string;
-              description?: string;
-              priceRange?: string;
-              bestTime?: string;
-              activities?: string;
-              link?: string;
-              imageSearchQuery?: string;
-              imageStarted?: boolean;
-            }
-            const fieldStates: Map<number, FieldState> = new Map();
-
             console.log("🔄 Starting real-time JSON parsing with partial-json (character-by-character streaming)...");
 
             // Claude 스트림에서 실시간으로 텍스트 처리

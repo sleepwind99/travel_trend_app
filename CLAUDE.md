@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Next.js 15 application that provides AI-powered travel recommendations using Anthropic's Claude AI. The app is a Korean-language travel planner ("AI 여행 플래너") that suggests user-friendly destinations based on user demographics (destination, gender, age).
+This is a Next.js 15 application that provides AI-powered travel recommendations using Anthropic's Claude AI. The app is a Korean-language travel planner ("AI 여행 플래너") that analyzes user transaction history and demographics to suggest personalized destinations.
 
 ## Technology Stack
 
@@ -12,74 +12,116 @@ This is a Next.js 15 application that provides AI-powered travel recommendations
 - **React**: 19.1.0
 - **Language**: TypeScript 5
 - **Styling**: Tailwind CSS 4
-- **AI Integration**: Anthropic Claude (Claude 3.5 Haiku)
+- **AI Integration**: Anthropic Claude (Claude Sonnet 4.5)
+- **Search Engine**: Serper API (Google Search & Images)
 - **Build Tool**: Turbopack
+- **Data Storage**: JSON files (development)
 
 ## Development Commands
 
 ```bash
-# Development server with Turbopack
-npm run dev
+# Development server with Turbopack and Hot Reload
+yarn dev
 
 # Build for production with Turbopack
-npm run build
+yarn build
 
 # Start production server
-npm start
+yarn start
 
 # Lint codebase
-npm run lint
+yarn lint
 ```
 
 The dev server runs on http://localhost:3000
 
 ## Architecture
 
-### App Structure
+### Component Structure (Modular Architecture)
 
-The application uses Next.js App Router with the following structure:
+The application follows a modular component architecture:
 
-- `src/app/layout.tsx` - Root layout with Geist font configuration
-- `src/app/page.tsx` - Main client component with travel recommendation form
-- `src/app/api/recommend/route.ts` - API route handler for Gemini AI integration
-- `src/app/globals.css` - Global Tailwind styles
+#### Type Definitions (`src/types/`)
+- `index.ts` - Common types shared across components
+  - `Recommendation`, `PartialRecommendation`
+  - `Transaction`, `UserData`, `NewUser`
+
+#### Presentation Components (`src/components/`)
+- `Header.tsx` - App header with logo
+- `Footer.tsx` - App footer
+- `SearchForm.tsx` - Search form with destination, user selection, and action buttons
+- `RecommendationCard.tsx` - Individual recommendation card with all details
+- `RecommendationsGrid.tsx` - Grid layout with infinite scroll and loading states
+- `UserInfoModal.tsx` - Modal for viewing/editing user information and transactions
+- `AddUserModal.tsx` - Modal for adding new users
+
+#### Container Component (`src/app/page.tsx`)
+- Main page with business logic
+- State management for recommendations, users, and modals
+- API calls and streaming handlers
+- Reduced from 1200+ lines to ~450 lines
 
 ### Data Flow
 
-1. User submits form from `page.tsx` (client component) with destination, gender, and age
-2. Request is sent to `/api/recommend` endpoint
-3. **Real-time web search**: Tavily AI searches for latest travel trends, SNS hotspots, and hidden gems
-4. API route constructs a system and user prompt in Korean for Claude AI, including search results
-5. Claude Sonnet 4.5 analyzes search results and returns structured JSON with 6 personalized travel recommendations
-6. Each recommendation includes: `title`, `location`, `description`, `activities`, `priceRange`, `bestTime`, `imageUrl`, `link`
-7. Results are displayed as clickable cards on the frontend
+1. User selects/manages users via `SearchForm` component
+2. User can view/edit user info through `UserInfoModal`
+3. User can add new users through `AddUserModal`
+4. User submits search form with destination and user ID
+5. Request sent to `/api/recommend` with user transaction history
+6. **Server Search**: Serper API performs 2 parallel Google searches:
+   - Latest travel trends and popular places
+   - Hidden gems and local restaurants
+7. API constructs prompt for Claude AI including:
+   - User transaction history analysis
+   - Search results
+   - User demographics
+8. Claude Sonnet 4.5 analyzes data and streams recommendations
+9. Each recommendation includes: `title`, `location`, `description`, `activities`, `priceRange`, `bestTime`, `imageUrl`, `link`
+10. Google Images are fetched via Serper API for accurate visuals
+11. Results displayed in `RecommendationsGrid` with infinite scroll
+
+### API Structure
+
+#### User Management APIs (`src/app/api/users/`)
+- `GET /api/users` - List all users
+- `POST /api/users` - Create new user with auto-generated ID (user_XXX)
+- `GET /api/users/[userId]` - Get specific user details
+- `PUT /api/users/[userId]` - Update user information and transactions
+- `DELETE /api/users/[userId]` - Delete user
+
+Data stored in `/data/users.json` (development environment)
+
+#### Recommendation API (`src/app/api/recommend/route.ts`)
+- Reads user data including transaction history
+- Performs real-time web search via Serper API
+- Analyzes user spending patterns
+- Streams recommendations using Server-Sent Events
+- Fetches images from Google Images via Serper API
 
 ### AI Integration Details
 
-The application combines **real-time web search** with **AI reasoning** for accurate, up-to-date recommendations:
-
-#### Tavily AI Search Integration
-- API: Tavily AI (`@tavily/core`)
-- Purpose: Real-time web search for latest travel trends and SNS hotspots
-- Search queries: 3 parallel searches per request
-  - Latest hotspots and Instagram-popular places
-  - Age/gender-specific trending destinations
+#### Serper API Integration
+- API: Serper API (Google Search & Images)
+- Purpose: Real-time web search and accurate image retrieval
+- Search queries: 2 parallel searches per request
+  - Latest hotspots and trending destinations
   - Hidden gems and local restaurants
-- Search depth: Advanced mode with max 5 results per query
-- Requires `TAVILY_API_KEY` environment variable
-- Free tier: 1,000 searches/month
+- Image search: Google Images for destination-specific visuals
+- Requires `SERPER_API_KEY` environment variable
+- Pricing: $50 free credit, $1/1,000 queries
 
 #### Claude AI Integration
-- Model: `claude-sonnet-4-5-20250929` (Claude Sonnet 4.5 - world's best coding model)
-- Purpose: Analyzes search results and generates personalized recommendations
-- Response format: JSON (parsed from text response)
+- Model: `claude-sonnet-4-5-20250929` (Claude Sonnet 4.5)
+- Purpose: Analyzes transaction history and search results to generate personalized recommendations
+- Response format: Streaming JSON via Server-Sent Events
 - Requires `CLAUDE_API_KEY` environment variable
 - Generation config: max_tokens=6144, temperature=0.8
 - Workflow:
-  1. Receives real-time search context from Tavily
-  2. Analyzes search results for accuracy and relevance
-  3. Generates 6 structured recommendations with detailed information
-  4. Focuses on safety, accessibility, and age/gender-appropriate suggestions
+  1. Receives user transaction history
+  2. Receives real-time search context from Serper
+  3. Analyzes spending patterns (categories, amounts, preferences)
+  4. Generates personalized recommendations based on user profile
+  5. Streams results in real-time for better UX
 
 ### TypeScript Configuration
 
@@ -92,58 +134,90 @@ The application combines **real-time web search** with **AI reasoning** for accu
 
 Required in `.env.local`:
 - `CLAUDE_API_KEY` - Anthropic Claude API key (required)
-- `TAVILY_API_KEY` - Tavily AI Search API key (required for real-time search)
+- `SERPER_API_KEY` - Serper API key for Google Search & Images (required)
 - `PEXELS_API_KEY` - Pexels image API key (optional, for image fallback)
 - `PIXABAY_API_KEY` - Pixabay image API key (optional, for image fallback)
 
 ### Getting API Keys
 
 1. **Claude API** (필수): Visit https://console.anthropic.com/ and create an API key
-2. **Serper API** (권장): Visit https://serper.dev/ and sign up ($50 free credit, 50,000 queries)
-3. **Tavily AI** (대체): Visit https://tavily.com/ and sign up for free (1,000 searches/month)
-4. **Pexels** (optional): Visit https://www.pexels.com/api/
-5. **Pixabay** (optional): Visit https://pixabay.com/api/docs/
+2. **Serper API** (필수): Visit https://serper.dev/ and sign up ($50 free credit, 50,000 queries)
+3. **Pexels** (optional): Visit https://www.pexels.com/api/
+4. **Pixabay** (optional): Visit https://pixabay.com/api/docs/
 
-### Search Mode Configuration
+## UI/UX Features
 
-The app supports two search modes via `SEARCH_MODE` environment variable:
+### User Management
+- User list dropdown with profile information (name, gender, age)
+- Blue button to view/edit user info and transactions
+- Green button to add new users
+- Red button in modal to delete users
+- Transaction management: add, edit, delete individual transactions
+- All changes persist to `/data/users.json`
 
-#### Mode 1: Server Search (Default, Recommended) ⭐
-```bash
-SEARCH_MODE="server"
-```
-- ✅ **Fast**: ~20-25 seconds total
-- ✅ **Simple**: Server searches → Results to Claude
-- ✅ **Predictable**: Fixed search cost
-- ✅ **Cheap**: $1/1,000 queries with Serper
-
-**How it works:**
-1. Server makes 2 parallel Serper API calls
-2. Search results added to Claude prompt
-3. Claude generates recommendations
-
-#### Mode 2: Claude Tool Use (Flexible) 🔧
-```bash
-SEARCH_MODE="claude_tools"
-```
-- ✅ **Flexible**: Claude decides when/what to search
-- ✅ **Smart**: Claude optimizes search queries
-- ✅ **Adaptive**: Can search multiple times if needed
-- ⚠️ **Slower**: ~40-50 seconds total (multiple API rounds)
-- ⚠️ **Variable cost**: Claude API calls increase 2-3x
-
-**How it works:**
-1. Claude receives search tool
-2. Claude decides to search (or not)
-3. Claude calls Serper via tool
-4. Claude analyzes results
-5. Claude may search again if needed
-6. Claude generates recommendations
-
-## UI/UX Notes
-
+### Search Experience
 - All user-facing text is in Korean
-- Form includes destination (text input), gender select (남성/여성/기타), and age range select (10대 through 50s+)
+- Form includes:
+  - Destination text input (예: 파리, 일본, 뉴욕)
+  - User selection dropdown
+  - User management buttons (info, add)
 - Loading states with spinner animation
 - Error handling with user-friendly Korean messages
-- Recommendations displayed as clickable cards with external links
+
+### Recommendations Display
+- Streaming updates for real-time feedback
+- Skeleton UI during loading
+- Clickable cards with:
+  - Google Image-based visuals
+  - Detailed descriptions
+  - Activity suggestions
+  - Price estimates
+  - Best visiting times
+  - Google search links
+- Infinite scroll (up to 21 recommendations)
+- Responsive grid layout (1/2/3 columns)
+
+### Modals
+- User Info Modal:
+  - Edit name, gender, age
+  - View and manage transaction history
+  - Add/delete transactions
+  - Save changes
+  - Delete user
+- Add User Modal:
+  - Enter name, gender, age
+  - Auto-generated user ID
+  - Empty transaction history by default
+
+## Development Notes
+
+### Component Best Practices
+- Keep components focused and single-purpose
+- Use TypeScript interfaces from `/src/types`
+- Props should be explicitly typed
+- Avoid business logic in presentation components
+- Use callback props for event handling
+
+### State Management
+- Container component (`page.tsx`) manages all state
+- Pass state and handlers down as props
+- Use `useCallback` for handlers to prevent re-renders
+- Keep modal state separate and controlled
+
+### API Development
+- Use Next.js API Routes for backend logic
+- File-based routing in `/src/app/api`
+- Return proper HTTP status codes
+- Handle errors gracefully with Korean messages
+- Use try-catch blocks for all file operations
+
+### File Operations
+- Users stored in `/data/users.json`
+- Read with `fs.readFileSync`
+- Write with `fs.writeFileSync` with pretty-print (indent: 2)
+- Always validate JSON before parsing
+- Handle file not found errors
+
+---
+
+IMPORTANT: this context may or may not be relevant to your tasks. You should not respond to this context unless it is highly relevant to your task.
