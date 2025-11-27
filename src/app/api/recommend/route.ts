@@ -238,18 +238,47 @@ async function searchTravelTrendsSerper(
   }
 }
 
-// 여러 이미지 API에서 순차적으로 검색 (최적화: 빠른 API 우선)
+// 구글 이미지 검색으로 정확한 이미지 가져오기
 async function fetchImageFromMultipleSources(query: string): Promise<string> {
-  // 1. Unsplash (가장 빠름 - API 키 불필요, 바로 URL 생성)
-  // 캐싱 방지를 위해 랜덤 시그니처 추가
+  // 1순위: Serper 구글 이미지 검색 (가장 정확함)
+  if (SERPER_API_KEY) {
+    try {
+      console.log(`🔍 Searching Google Images via Serper for: ${query}`);
+
+      const response = await axios.post(
+        'https://google.serper.dev/images',
+        {
+          q: query,
+          num: 1, // 첫 번째 결과만
+        },
+        {
+          headers: {
+            'X-API-KEY': SERPER_API_KEY,
+            'Content-Type': 'application/json',
+          },
+          timeout: 5000,
+        }
+      );
+
+      if (response.data.images && response.data.images.length > 0) {
+        const imageUrl = response.data.images[0].imageUrl;
+        console.log(`✅ Google Image found: ${imageUrl.substring(0, 80)}...`);
+        return imageUrl;
+      } else {
+        console.warn(`⚠️  No Google Images found for: ${query}`);
+      }
+    } catch (error: unknown) {
+      const err = error as { response?: { status?: number }; message?: string };
+      console.error(`❌ Serper Image Search failed for "${query}":`, err?.message || error);
+    }
+  }
+
+  // 2순위: Unsplash 폴백 (Serper 실패 시)
   const timestamp = Date.now();
   const random = Math.floor(Math.random() * 10000);
   const unsplashUrl = `https://source.unsplash.com/1200x800/?${encodeURIComponent(query)}&sig=${timestamp}-${random}`;
-  console.log(`✓ Using Unsplash for: ${query} (cache-busting: ${timestamp}-${random})`);
+  console.log(`⚠️  Falling back to Unsplash for: ${query}`);
   return unsplashUrl;
-
-  // 아래 코드는 Unsplash가 실패할 경우를 대비한 폴백 (현재는 도달 불가)
-  // Unsplash는 항상 URL을 반환하므로 추가 검색 불필요
 }
 
 export async function POST(request: Request) {
